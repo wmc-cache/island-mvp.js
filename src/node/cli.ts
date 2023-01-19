@@ -3,24 +3,34 @@ import { resolve } from "path";
 import { build } from "./build";
 import { createDevServer } from "./dev";
 
+
 const cli = cac("island").version("0.0.1").help();
 
+
+
+// dev
 cli.command("dev [root]", "start dev server").action(async (root: string) => {
+  console.log("root>>>>>>", root)
   const server = await createDevServer(root);
   await server.listen();
   server.printUrls();
 });
 
+
+// build
 cli
   .command("build [root]", "build in production")
   .action(async (root: string) => {
     try {
+      console.log("root>>>>>>", root)
       root = resolve(root);
       await build(root);
     } catch (e) {
       console.log(e);
     }
   });
+
+
 
 cli.parse();
 
