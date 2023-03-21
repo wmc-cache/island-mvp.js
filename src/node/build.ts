@@ -2,7 +2,7 @@ import { build as viteBuild, InlineConfig } from "vite";
 import type { RollupOutput } from "rollup";
 import { CLIENT_ENTRY_PATH, SERVER_ENTRY_PATH } from "./constants";
 import { join } from "path";
-import * as fs from "fs-extra";
+import fs from "fs-extra";
 
 export async function bundle(root: string) {
   const resolveViteConfig = (isServer: boolean): InlineConfig => ({
@@ -66,6 +66,7 @@ export async function renderPage(
 
 export async function build(root: string = process.cwd()) {
   // 1. bundle - client 端 + server 端
+  // @ts-ignore
   const [clientBundle] = await bundle(root);
   // 2. 引入 server-entry 模块
   const serverEntryPath = join(root, ".temp", "ssr-entry.js");
