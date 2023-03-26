@@ -1,6 +1,7 @@
 import cac from 'cac';
 import { resolve } from 'path';
 import { build } from './build';
+import { resolveConfig } from './config';
 
 const cli = cac('island').version('0.0.1').help();
 
@@ -22,8 +23,9 @@ cli
   .command('build [root]', 'build in production')
   .action(async (root: string) => {
     try {
+      const config = await resolveConfig(root, 'build', 'production');
       root = resolve(root);
-      await build(root);
+      await build(root, config);
     } catch (e) {
       console.log(e);
     }

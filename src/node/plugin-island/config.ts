@@ -1,16 +1,27 @@
-import { relative } from 'path';
+import { relative, join } from 'path';
 import { Plugin } from 'vite';
 import { SiteConfig } from 'shared/types/index';
+import { PACKAGE_ROOT } from '../../node/constants';
 
 const SITE_DATA_ID = 'island:site-data';
 
 export function pluginConfig(
     config: SiteConfig,
-    restartServer: () => Promise<void>
+    restartServer?: () => Promise<void>
 ): Plugin {
     // let server: ViteDevServer | null = null;
     return {
         name: 'island:config',
+        config() {
+            return {
+                root: PACKAGE_ROOT,
+                resolve: {
+                    alias: {
+                        '@runtime': join(PACKAGE_ROOT, 'src', 'runtime', 'index.ts')
+                    }
+                }
+            };
+        },
         resolveId(id) {
             if (id === SITE_DATA_ID) {
                 return '\0' + SITE_DATA_ID;
@@ -34,7 +45,14 @@ export function pluginConfig(
                     `\n${relative(config.root, ctx.file)} changed, restarting server...`
                 );
                 // 重启 Dev Server
-                await restartServer();
+                // 方案讨论:
+                // 1. 插件内重启 Vite 的 dev server
+                // await server.restart();
+                // ❌ 没有作用，因为并没有进行 Island 框架配置的重新读取
+                // 2. 手动调用 dev.ts 中的 createServer
+                // 然后每次 import 新的产物
+                // ✅ 可行
+                await restartServer!();
             }
         }
     };
